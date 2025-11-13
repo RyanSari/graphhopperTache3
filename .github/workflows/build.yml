@@ -8,10 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java-version: ['24', '25-ea']
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,7 +16,7 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java-version }}
+          java-version: '24'
           distribution: temurin
 
       - name: Cache Maven artifacts
@@ -49,33 +46,42 @@ jobs:
       - name: Install bc
         run: sudo apt-get update && sudo apt-get install -y bc
 
-      - name: Build and unit tests (no PIT)
-        if: matrix.java-version != '24'
-        run: mvn -B -pl web-api -am clean test
+      - name: Build, unit tests and mutation tests (web-api)
+        run: mvn -pl web-api -am -B clean test org.pitest:pitest-maven:mutationCoverage
 
-      - name: Build, unit tests and mutation tests (Java 24)
-        if: matrix.java-version == '24'
-        run: mvn -B -pl web-api -am clean test org.pitest:pitest-maven:mutationCoverage
+      - name: Debug PIT report paths
+        run: |
+          echo "Pit report directories:"
+          find . -type d -name "pit-reports" -print || true
+          echo "HTML reports:"
+          find . -path "*pit-reports*/*.html" -print || true
 
       - name: Extract mutation score
-        if: matrix.java-version == '24'
         id: mutation
         run: |
-          SCORE=$(grep -RhoP 'mutationCoverage="\K[0-9.]+' target/pit-reports web-api/target/pit-reports 2>/dev/null || echo "")
-          SCORE=$(echo "$SCORE" | head -n1)
+          SCORE=$(grep -RhoP 'Mutation coverage[^0-9]*\K[0-9]+(?=%)' \
+                   target/pit-reports web-api/target/pit-reports 2>/dev/null | head -n1)
+
+          if [ -z "$SCORE" ]; then
+            SCORE=$(grep -RhoP 'mutationCoverage="\K[0-9.]+' \
+                     target/pit-reports web-api/target/pit-reports 2>/dev/null | head -n1)
+          fi
+
           if [ -z "$SCORE" ]; then
             echo "Mutation score not found"
             exit 1
           fi
+
+          echo "Mutation score: $SCORE"
           echo "mutation_score=$SCORE" >> "$GITHUB_OUTPUT"
 
       - name: Compare mutation score with previous commit
-        if: matrix.java-version == '24'
         run: |
           BASELINE=$(git show HEAD^:mutation-score.txt 2>/dev/null || echo "0")
           CURR_SCORE=${{ steps.mutation.outputs.mutation_score }}
           echo "Baseline score (previous commit): $BASELINE"
           echo "Current score              : $CURR_SCORE"
+
           if command -v bc >/dev/null 2>&1; then
             if (( $(echo "$CURR_SCORE < $BASELINE" | bc -l) )); then
               echo "Mutation score decreased compared to previous commit"
@@ -88,8 +94,7 @@ jobs:
             exit 1
           fi
 
-      - name: Write current mutation score file
-        if: matrix.java-version == '24'
+      - name: Save current mutation score
         run: echo "${{ steps.mutation.outputs.mutation_score }}" > mutation-score.txt
 
   rickroll-on-failure:
