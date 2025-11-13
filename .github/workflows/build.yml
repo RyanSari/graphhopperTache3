@@ -60,23 +60,16 @@ jobs:
         id: mutation
         run: |
           REPORT_FILE=$(find target/pit-reports web-api/target/pit-reports -type f -name "index.html" 2>/dev/null | head -n1 || true)
-
           if [ -z "$REPORT_FILE" ]; then
             echo "No PIT index.html report found"
             exit 1
           fi
-
           echo "Using PIT report: $REPORT_FILE"
-          echo "Lines containing 'Mutation' in report (debug):"
-          grep -ni "Mutation" "$REPORT_FILE" | head -n10 || true
-
-          SCORE=$(grep -i "Mutation" "$REPORT_FILE" | head -n1 | sed -n 's/.*\([0-9][0-9]*\)%.*$/\1/p')
-
+          SCORE=$(grep -o '[0-9][0-9]*%' "$REPORT_FILE" | head -n1 | tr -d '%')
           if [ -z "$SCORE" ]; then
             echo "Mutation score not found in $REPORT_FILE"
             exit 1
           fi
-
           echo "Mutation score: $SCORE"
           echo "mutation_score=$SCORE" >> "$GITHUB_OUTPUT"
 
@@ -86,7 +79,6 @@ jobs:
           CURR_SCORE=${{ steps.mutation.outputs.mutation_score }}
           echo "Baseline score (previous commit): $BASELINE"
           echo "Current score              : $CURR_SCORE"
-
           if command -v bc >/dev/null 2>&1; then
             if (( $(echo "$CURR_SCORE < $BASELINE" | bc -l) )); then
               echo "Mutation score decreased compared to previous commit"
