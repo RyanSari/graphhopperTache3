@@ -51,24 +51,35 @@ jobs:
 
       - name: Debug PIT report paths
         run: |
-          echo "Pit report directories:"
+          echo "PIT report directories:"
           find . -type d -name "pit-reports" -print || true
-          echo "HTML reports:"
-          find . -path "*pit-reports*/*.html" -print || true
+          echo "PIT index.html files:"
+          find . -path "*pit-reports*/index.html" -print || true
 
       - name: Extract mutation score
         id: mutation
         run: |
-          SCORE=$(grep -RhoP 'Mutation coverage[^0-9]*\K[0-9]+(?=%)' \
-                   target/pit-reports web-api/target/pit-reports 2>/dev/null | head -n1)
+          REPORT_FILE=$(find target/pit-reports web-api/target/pit-reports -type f -name "index.html" 2>/dev/null | head -n1 || true)
 
-          if [ -z "$SCORE" ]; then
-            SCORE=$(grep -RhoP 'mutationCoverage="\K[0-9.]+' \
-                     target/pit-reports web-api/target/pit-reports 2>/dev/null | head -n1)
+          if [ -z "$REPORT_FILE" ]; then
+            echo "No PIT index.html report found"
+            exit 1
           fi
 
+          echo "Using PIT report: $REPORT_FILE"
+
+          SCORE=$(grep -i "mutation" "$REPORT_FILE" | head -n1 | awk -F'[<>%]' '
+            {
+              for (i = 1; i <= NF; i++) {
+                if ($i ~ /^[0-9]+$/) {
+                  print $i
+                  exit
+                }
+              }
+            }')
+
           if [ -z "$SCORE" ]; then
-            echo "Mutation score not found"
+            echo "Mutation score not found in $REPORT_FILE"
             exit 1
           fi
 
