@@ -61,7 +61,7 @@ jobs:
         if: matrix.java-version == '24'
         id: mutation
         run: |
-          SCORE=$(grep -RhoP 'mutationCoverage="\K[0-9.]+' web-api/target/pit-reports || echo "")
+          SCORE=$(grep -RhoP 'mutationCoverage="\K[0-9.]+' target/pit-reports web-api/target/pit-reports 2>/dev/null || echo "")
           SCORE=$(echo "$SCORE" | head -n1)
           if [ -z "$SCORE" ]; then
             echo "Mutation score not found"
