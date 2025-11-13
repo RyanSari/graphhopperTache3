@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ['24', '25-ea']
 
     steps:
       - uses: actions/checkout@v4
@@ -16,7 +20,7 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          java-version: '24'
+          java-version: ${{ matrix.java-version }}
           distribution: temurin
 
       - name: Cache Maven artifacts
@@ -46,10 +50,16 @@ jobs:
       - name: Install bc
         run: sudo apt-get update && sudo apt-get install -y bc
 
-      - name: Build, unit tests and mutation tests (web-api)
+      - name: Build and unit tests (no PIT)
+        if: matrix.java-version != '24'
+        run: mvn -pl web-api -am -B clean test
+
+      - name: Build, unit tests and mutation tests (web-api, Java 24)
+        if: matrix.java-version == '24'
         run: mvn -pl web-api -am -B clean test org.pitest:pitest-maven:mutationCoverage
 
       - name: Debug PIT report paths
+        if: matrix.java-version == '24'
         run: |
           echo "PIT report directories:"
           find . -type d -name "pit-reports" -print || true
@@ -57,6 +67,7 @@ jobs:
           find . -path "*pit-reports*/index.html" -print || true
 
       - name: Extract mutation score
+        if: matrix.java-version == '24'
         id: mutation
         run: |
           REPORT_FILE=$(find target/pit-reports web-api/target/pit-reports -type f -name "index.html" 2>/dev/null | head -n1 || true)
@@ -74,6 +85,7 @@ jobs:
           echo "mutation_score=$SCORE" >> "$GITHUB_OUTPUT"
 
       - name: Compare mutation score with previous commit
+        if: matrix.java-version == '24'
         run: |
           BASELINE=$(git show HEAD^:mutation-score.txt 2>/dev/null || echo "0")
           CURR_SCORE=${{ steps.mutation.outputs.mutation_score }}
@@ -92,6 +104,7 @@ jobs:
           fi
 
       - name: Save current mutation score
+        if: matrix.java-version == '24'
         run: echo "${{ steps.mutation.outputs.mutation_score }}" > mutation-score.txt
 
   rickroll-on-failure:
