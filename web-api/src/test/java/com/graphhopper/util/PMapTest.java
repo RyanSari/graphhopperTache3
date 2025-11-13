@@ -86,7 +86,7 @@ public class PMapTest {
     
     // Pour mon essai
     @Test
-    void shouldFailOnPurpose() {
+    void shouldFailForRickrollDemo() {
         assertEquals(1, 2);
     }
 
