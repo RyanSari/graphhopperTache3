@@ -83,11 +83,11 @@ public class PMapTest {
         assertTrue(new PMap("").toMap().isEmpty());
         assertTrue(new PMap("name").toMap().isEmpty());
     }
-    /*
+    
     // Pour mon essai
     @Test
-    void shouldFailForRickrollDemo() {
+    void shouldFailOnPurpose() {
         assertEquals(1, 2);
     }
-    */
+
 }
