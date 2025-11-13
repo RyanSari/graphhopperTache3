@@ -112,10 +112,28 @@ jobs:
     if: failure()
     runs-on: ubuntu-latest
     steps:
-      - name: Rick Roll on failure
-        uses: TejasvOnly/random-rickroll@v1.0
-        continue-on-error: true
+      - name: Rick Roll in logs
+        run: |
+          echo "Les tests ont échoué, never gonna give you up."
+          echo "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+      - name: Rick Roll comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
         with:
-          percentage: 100
-          message: "Les tests ont échoué, never gonna give you up."
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = [
+              '### 🚨 Tests en échec = Rickroll automatique',
+              '',
+              'Les tests ont échoué, never gonna give you up.',
+              '',
+              '![Rickroll](https://media.tenor.com/vI3t9jA7bhAAAAAC/rick-astley-dancing.gif)'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
