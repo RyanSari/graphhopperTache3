@@ -17,9 +17,10 @@
  */
 package com.graphhopper.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class PMapTest {
 
@@ -81,6 +82,12 @@ public class PMapTest {
     public void empty() {
         assertTrue(new PMap("").toMap().isEmpty());
         assertTrue(new PMap("name").toMap().isEmpty());
+    }
+    
+    // Pour mon essai
+    @Test
+    void shouldFailOnPurpose() {
+        assertEquals(1, 2);
     }
 
 }
