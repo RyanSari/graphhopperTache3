@@ -128,7 +128,9 @@ jobs:
               '',
               'Les tests ont échoué, never gonna give you up.',
               '',
-              '![Rickroll](https://media.tenor.com/vI3t9jA7bhAAAAAC/rick-astley-dancing.gif)'
+              '![Rickroll](https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif)',
+              '',
+              '[▶️ Voir la vidéo complète](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
             ].join('\n');
 
             await github.rest.issues.createComment({
@@ -137,3 +139,4 @@ jobs:
               issue_number: context.issue.number,
               body
             });
+
