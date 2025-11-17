@@ -78,15 +78,20 @@ jobs:
           fi
           echo "Using PIT report: $REPORT_FILE"
 
-          # On prend un bloc de quelques lignes APRES la première occurrence de "Mutation Coverage"
-          # et on cherche le premier nombre suivi de '%'
-          SCORE=$(grep -A10 "Mutation Coverage" "$REPORT_FILE" | grep -o '[0-9][0-9]*%' | head -n1 | tr -d '%')
+          # On récupère les pourcentages qui apparaissent juste après "Mutation Coverage"
+          RAW_PCTS=$(grep -A10 "Mutation Coverage" "$REPORT_FILE" | grep -o '[0-9][0-9]*%')
+          echo "Percents found after 'Mutation Coverage': $RAW_PCTS"
+
+          # 1er pourcentage = 40% (Line Coverage), 2e = 34% (Mutation Coverage)
+          SCORE=$(echo "$RAW_PCTS" | sed -n '2p' | tr -d '%')
+
+          # Sécurité: si jamais il n'y a pas de 2e pourcentage, on prend le dernier
+          if [ -z "$SCORE" ]; then
+            SCORE=$(echo "$RAW_PCTS" | tail -n1 | tr -d '%')
+          fi
 
           if [ -z "$SCORE" ]; then
             echo "Mutation coverage percent not found in $REPORT_FILE"
-            # Debug: afficher un petit bloc autour
-            echo "=== Debug around 'Mutation Coverage' ==="
-            grep -n "Mutation Coverage" "$REPORT_FILE" | head -n3 || true
             exit 1
           fi
 
