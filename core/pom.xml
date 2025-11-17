@@ -40,6 +40,22 @@
             <artifactId>graphhopper-web-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <!-- depencency de mockito commence ici -->
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.12.0</version> <!--  -->
+            <scope>test</scope>
+        </dependency>
+
+
+
+        <!-- depencency de mockito finit  ici -->
+
+
+
         <dependency>
             <groupId>com.carrotsearch</groupId>
             <artifactId>hppc</artifactId>
