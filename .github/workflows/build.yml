@@ -78,20 +78,20 @@ jobs:
           fi
           echo "Using PIT report: $REPORT_FILE"
 
-          # On prend uniquement la ligne qui contient "Mutation Coverage"
-          LINE=$(grep "Mutation Coverage" "$REPORT_FILE" | head -n1)
-
-          # On extrait le pourcentage sur cette ligne (ex: 34%)
-          SCORE=$(echo "$LINE" | grep -o '[0-9][0-9]*%' | head -n1 | tr -d '%')
+          # On prend un bloc de quelques lignes APRES la première occurrence de "Mutation Coverage"
+          # et on cherche le premier nombre suivi de '%'
+          SCORE=$(grep -A10 "Mutation Coverage" "$REPORT_FILE" | grep -o '[0-9][0-9]*%' | head -n1 | tr -d '%')
 
           if [ -z "$SCORE" ]; then
             echo "Mutation coverage percent not found in $REPORT_FILE"
+            # Debug: afficher un petit bloc autour
+            echo "=== Debug around 'Mutation Coverage' ==="
+            grep -n "Mutation Coverage" "$REPORT_FILE" | head -n3 || true
             exit 1
           fi
 
           echo "Mutation coverage (percent only): $SCORE%"
           echo "mutation_score=$SCORE" >> "$GITHUB_OUTPUT"
-
 
 
       - name: Compare mutation score with previous commit
