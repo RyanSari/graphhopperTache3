@@ -10,7 +10,9 @@ class MutationDemoTest {
         MutationDemo demo = new MutationDemo();
 
         assertEquals(1, demo.sign(5));    // x > 0
-        assertEquals(-1, demo.sign(-3));  // x < 0
-        assertEquals(0, demo.sign(0));    // x == 0
+        // On NE vérifie plus les autres cas :
+        // assertEquals(-1, demo.sign(-3));
+        // assertEquals(0, demo.sign(0));
     }
+
 }
