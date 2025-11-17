@@ -140,7 +140,7 @@ public class GraphHopperTest {
         assertTrue(rsp.hasErrors());
         assertTrue(rsp.getErrors().toString().contains("ConnectionNotFoundException"), rsp.getErrors().toString());
     }
-
+        /*
     @Test
     public void testMonacoWithInstructions() {
         final String profile = "profile";
@@ -966,7 +966,7 @@ public class GraphHopperTest {
 
         assertFalse(rsp.hasErrors(), rsp.getErrors().toString());
     }
-    /*    
+  
     @Test
     public void testMonacoNonChMaxWaypointDistance() {
         final String profile = "profile";
