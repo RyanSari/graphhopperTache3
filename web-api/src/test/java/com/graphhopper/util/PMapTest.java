@@ -16,8 +16,9 @@
  *  limitations under the License.
  */
 package com.graphhopper.util;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 public class PMapTest {
@@ -28,7 +29,7 @@ public class PMapTest {
 
         assertEquals("bar", subject.getString("foo", ""));
     }
-    /*
+    
     @Test
     public void propertyFromStringWithMultiplePropertiesCanBeRetrieved() {
         PMap subject = new PMap("foo=valueA|bar=valueB");
@@ -80,7 +81,7 @@ public class PMapTest {
     public void empty() {
         assertTrue(new PMap("").toMap().isEmpty());
         assertTrue(new PMap("name").toMap().isEmpty());
-    }*/
+    }
    
     /*
     // Pour mon essai
