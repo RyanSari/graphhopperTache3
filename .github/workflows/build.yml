@@ -99,17 +99,31 @@ jobs:
           echo "mutation_score=$SCORE" >> "$GITHUB_OUTPUT"
 
 
-      - name: Compare mutation score with previous commit
+      - name: Compare mutation score with previous run
         if: matrix.java-version == '24'
         run: |
-          BASELINE=$(git show HEAD^:mutation-score.txt 2>/dev/null || echo "0")
-          CURR_SCORE=${{ steps.mutation.outputs.mutation_score }}
-          echo "Baseline score (previous commit): $BASELINE"
+          # baseline = score stocké dans le repo (dernier run)
+          BASELINE=$(cat mutation-score.txt 2>/dev/null || echo "0")
+          CURR_SCORE="${{ steps.mutation.outputs.mutation_score }}"
+
+          echo "Baseline score (previous run): $BASELINE"
           echo "Current score              : $CURR_SCORE"
+
+          # Vérifier que les deux scores sont numériques
+          if ! echo "$CURR_SCORE" | grep -Eq '^[0-9]+([.][0-9]+)?$'; then
+            echo "Error: current mutation score '$CURR_SCORE' is not numeric."
+            exit 1
+          fi
+          if ! echo "$BASELINE" | grep -Eq '^[0-9]+([.][0-9]+)?$'; then
+            echo "Error: baseline mutation score '$BASELINE' is not numeric."
+            exit 1
+          fi
+
           if command -v bc >/dev/null 2>&1; then
-            if (( $(echo "$CURR_SCORE < $BASELINE" | bc -l) )); then
-              echo "Mutation score decreased compared to previous commit"
-              # exit 1
+            RES=$(echo "$CURR_SCORE < $BASELINE" | bc -l)
+            if [ "$RES" -eq 1 ]; then
+              echo "Mutation score decreased compared to previous run"
+              exit 1
             else
               echo "Mutation score did not decrease"
             fi
@@ -117,7 +131,6 @@ jobs:
             echo "bc is not available"
             exit 1
           fi
-
 
       - name: Save current mutation score
         if: matrix.java-version == '24'
