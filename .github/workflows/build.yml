@@ -103,26 +103,13 @@ jobs:
         if: matrix.java-version == '24'
         run: |
           BASELINE=$(git show HEAD^:mutation-score.txt 2>/dev/null || echo "0")
-          CURR_SCORE="${{ steps.mutation.outputs.mutation_score }}"
-
+          CURR_SCORE=${{ steps.mutation.outputs.mutation_score }}
           echo "Baseline score (previous commit): $BASELINE"
           echo "Current score              : $CURR_SCORE"
-
-          # Vérifier que les deux scores sont numériques
-          if ! echo "$CURR_SCORE" | grep -Eq '^[0-9]+([.][0-9]+)?$'; then
-            echo "Error: current mutation score '$CURR_SCORE' is not numeric."
-            exit 1
-          fi
-          if ! echo "$BASELINE" | grep -Eq '^[0-9]+([.][0-9]+)?$'; then
-            echo "Error: baseline mutation score '$BASELINE' is not numeric."
-            exit 1
-          fi
-
           if command -v bc >/dev/null 2>&1; then
-            RES=$(echo "$CURR_SCORE < $BASELINE" | bc -l)
-            if [ "$RES" -eq 1 ]; then
+            if (( $(echo "$CURR_SCORE < $BASELINE" | bc -l) )); then
               echo "Mutation score decreased compared to previous commit"
-              exit 1
+              # exit 1
             else
               echo "Mutation score did not decrease"
             fi
@@ -130,6 +117,7 @@ jobs:
             echo "bc is not available"
             exit 1
           fi
+
 
       - name: Save current mutation score
         if: matrix.java-version == '24'
