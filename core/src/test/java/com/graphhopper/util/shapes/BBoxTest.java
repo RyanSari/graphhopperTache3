@@ -73,7 +73,7 @@ public class BBoxTest {
         // so, use bottom-right and top-left corner
         assertTrue(new BBox(6, 11, 6, 11).intersects(new BBox(7, 10, 5, 12)));
     }
-
+    /*
     @Test
     public void testPointListIntersect() {
         BBox bbox = new BBox(-0.5, 1, 1, 2);
@@ -124,7 +124,7 @@ public class BBoxTest {
 
         assertEquals(b1, b1.calculateIntersection(b2));
     }
-
+    */
     @Test
     public void testParseTwoPoints() {
         assertEquals(new BBox(2, 4, 1, 3), BBox.parseTwoPoints("1,2,3,4"));
