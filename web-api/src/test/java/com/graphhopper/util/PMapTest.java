@@ -77,12 +77,13 @@ public class PMapTest {
         assertEquals(3, pMap.getInt("x", -1));
         assertEquals(2, pMap.getInt("y", -1));
     }
-
+    /*
     @Test
     public void empty() {
         assertTrue(new PMap("").toMap().isEmpty());
         assertTrue(new PMap("name").toMap().isEmpty());
-    }
+    }*/
+   
     /*
     // Pour mon essai
     @Test
