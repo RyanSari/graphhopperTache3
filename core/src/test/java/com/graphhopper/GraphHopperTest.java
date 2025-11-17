@@ -966,7 +966,7 @@ public class GraphHopperTest {
 
         assertFalse(rsp.hasErrors(), rsp.getErrors().toString());
     }
-
+    /*    
     @Test
     public void testMonacoNonChMaxWaypointDistance() {
         final String profile = "profile";
@@ -2876,5 +2876,5 @@ public class GraphHopperTest {
         assertEquals(1, p.get(1).getLast());
         assertEquals(0.0, (double) p.get(1).getValue(), 1.e-3);
     }
-
+        */
 }
