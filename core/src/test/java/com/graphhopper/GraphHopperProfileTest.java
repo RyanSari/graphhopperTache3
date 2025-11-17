@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GraphHopperProfileTest {
 
     private static final String GH_LOCATION = "target/gh-profile-config-gh";
-
+    
     @Test
     public void deserialize() throws IOException {
         ObjectMapper objectMapper = Jackson.newObjectMapper();
